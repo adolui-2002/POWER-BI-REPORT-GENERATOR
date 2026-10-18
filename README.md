@@ -1,6 +1,6 @@
 ## 🎥 Project Demo
 
-[▶️ Watch the Project Demo on YouTube](https://youtu.be/1p_BsG5Cwf0)
+[<img src="https://github.com/user-attachments/assets/f52df5e2-ab0d-458d-bb39-ed56d07111c9" alt="Click to watch the Power BI Narrative Generator demo" width="800">](https://youtu.be/1p_BsG5Cwf0)
 
 
 # Data Analytics Automated Report Narrative Generator
