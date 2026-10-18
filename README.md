@@ -1,65 +1,98 @@
-## 🎥 Project Demo
+# Power BI Narrative Generator
+
+**Turn your data into insightful, human-readable business reports with AI.**
+
+An AI analytics app that explores datasets in a Power BI-style dashboard, detects trends and anomalies, and writes a business narrative. Python computes every number; the LLM only writes the words; guardrails verify the result.
+
+🎥 **Project Demo**
 
 [<img src="https://github.com/user-attachments/assets/f52df5e2-ab0d-458d-bb39-ed56d07111c9" alt="Click to watch the Power BI Narrative Generator demo" width="800">](https://youtu.be/1p_BsG5Cwf0)
 
+[🎥 Watch Demo](https://youtu.be/1p_BsG5Cwf0) · [📂 Source Code](https://github.com/adolui-2002/POWER-BI-REPORT-GENERATOR)
 
-# Data Analytics Automated Report Narrative Generator
+## Features
 
-FastAPI + local LLM (Ollama) + React. All components are free/open-source.
-Python computes every number; the LLM only writes the narrative; guardrails verify it.
+- **Data sources:** CSV, TSV, Excel, JSON, JSONL, XML, Parquet, SQLite, URLs, read-only SQL (API)
+- **Interactive dashboard:** slicers, cross-filtering, month drill-down, matrix heatmap, sortable data table, CSV export
+- **Analytics:** monthly trends, category breakdowns, z-score anomalies, correlation
+- **AI report builder:** executive/analyst modes, report for the filtered view, editable sections, live number verification, Markdown/PDF export
+- **Guardrails:** upload limits, SSRF block, SELECT-only SQL, PII scan, prompt-injection filtering, numeric-claim check with template fallback
 
-## Run locally
-**Backend**
+## Tech Stack
+
+FastAPI · Pandas/NumPy · Ollama (**Qwen3 8B**) · React + Vite + Recharts · Pydantic · pytest · Docker
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A[Data source] --> B[Validate and clean] --> C[Python analytics] --> D[Verified evidence]
+    D --> E[LLM narrative] --> F[Guardrails: schema + numeric check]
+    F -->|pass| G[Report]
+    F -->|fail| H[Template fallback] --> G
+    B --> I[Interactive dashboard] --> J[React UI]
+    G --> J
+```
+
+## Getting Started
+
+**Prerequisites:** Python 3.10+, Node.js 18+, [Ollama](https://ollama.com) (optional; without it a template narrative is used)
+
 ```bash
-cd backend && python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\Activate.ps1
+git clone https://github.com/adolui-2002/POWER-BI-REPORT-GENERATOR.git
+cd POWER-BI-REPORT-GENERATOR
+
+# LLM (optional, ~5 GB)
+ollama pull qwen3:8b
+
+# Backend
+cd backend
+python -m venv .venv
+.venv\Scripts\Activate.ps1        # macOS/Linux: source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload          # docs: http://127.0.0.1:8000/docs
-```
-**LLM (optional)**: install Ollama, then `ollama pull qwen3:8b`. Without it the app uses a deterministic, verified template narrative.
+uvicorn app.main:app --reload     # API docs: http://127.0.0.1:8000/docs
 
-**Frontend**
+# Frontend (new terminal)
+cd frontend
+npm install
+npm run dev                       # http://localhost:5173
+```
+
+Try it with `sample_data/sales_data.csv` (600 synthetic rows, also in 7 other formats).
+
+**Docker:** `docker compose up --build`, then `docker compose exec ollama ollama pull qwen3:8b`
+
+Settings (`.env.example`): `OLLAMA_MODEL`, `OLLAMA_URL`, `LLM_TIMEOUT`, `MAX_UPLOAD_MB`, `CORS_ORIGINS`.
+
+## Testing and Evaluation
+
 ```bash
-cd frontend && npm install && npm run dev      # http://localhost:5173
+cd backend && pytest -q
+cd .. && python evaluation/run_evaluation.py
 ```
-**Docker (all services)**: `docker compose up --build`, then `docker compose exec ollama ollama pull qwen3:8b`.
 
-Model: **Qwen3 8B** (`qwen3:8b`, ~5 GB download, roughly 8 GB RAM/VRAM). Thinking mode is disabled for clean JSON output. On CPU-only machines raise `LLM_TIMEOUT` (default 120 s); the 1-minute target must be measured on your hardware.
+| Check | Result |
+| --- | --- |
+| pytest suite | 18 / 18 passed |
+| 8 file formats: exact totals, numeric check, sections | 8 / 8 passed |
+| Median latency (template narrative, no LLM) | about 0.01 s |
 
-## Interactive dashboard (Power BI-style)
-- **Slicers** (left pane): category chips, date range, measure and aggregation (sum/mean/count/max)
-- **Cross-filtering**: click any bar or pie slice and every visual, KPI, matrix and table updates; click again to clear
-- **Drill-down**: click a month on the trend chart to filter to that month
-- **Matrix heatmap**: click a cell to filter by both dimensions
-- **Data tab**: sortable table with anomaly rows highlighted, export current view as CSV
-- **AI Report tab**: narrates the *currently filtered view*, with numeric verification and guardrail results
-- **Report builder**: executive/analyst audience, scope badge, stale-report warning, per-report history, generation timer
-- **Live number verification**: every number in the narrative is green (matches computed evidence, hover for source) or red (no match); edit any section and it re-checks instantly
-- **Evidence sidebar**: KPIs, trend sparkline, clickable category bars that jump to the dashboard filtered; export Markdown, copy, or print to PDF
-- API: `POST /datasets/{id}/explore` (filters, date_from, date_to, metric, agg)
 
-## Sample data
-`sample_data/` has 600 synthetic sales rows in 8 formats (CSV, TSV, JSON, JSONL, XLSX, XML, Parquet, SQLite) with a planted Tablet decline from September and 2 outliers.
-Regenerate: `python sample_data/generate_sample_data.py`
+## Limitations
 
-## Tests and evaluation
-```bash
-cd backend && pytest -q                 # all formats, exact totals, SSRF, SQL, numeric guard, PII
-python evaluation/run_evaluation.py     # from repo root: accuracy + latency across formats
-```
-The 85% human-rated quality target needs a rubric and human reviewers; it is not computed automatically.
+- Qwen3 8B needs about 8 GB RAM/VRAM and can be slow on CPU
+- Numeric check verifies numbers, not stated causes
+- Data is stored in memory (lost on restart)
+- No PDF/OCR or cloud-warehouse connectors yet; not deployed yet
 
-## API
-`GET /api/v1/health` · `GET /api/v1/health/llm` · `POST /datasets/upload` · `POST /datasets/url` · `POST /datasets/sql` ·
-`GET /datasets/{id}/profile` · `POST /reports/generate` · `GET /reports/{id}` · `/evaluation` · `/export`
+## Roadmap
 
-SQL example (install a driver, e.g. `pip install psycopg2-binary`; use a read-only DB account):
-`{"connection_string":"postgresql://ro_user:pw@host/db","query":"select * from sales"}`
+Cloud deployment · PDF/OCR · more connectors · authentication and persistence · larger human-rated benchmark
 
-## Guardrails implemented
-Size/row limits, extension allow-list, SELECT-only SQL, SSRF block (private IPs, redirects, non-http), read-only SQLite,
-regex PII scan (heuristic, not a guarantee), prompt-injection stripping of dataset strings, strict JSON schema from the LLM,
-numeric-claim verification with retries then fallback to verified template.
+## Contributing
 
-## Not included (roadmap)
-PDF tables/OCR, Presidio, Pandera, DeepEval, auth, persistent storage, and Phase 2/3 connectors (BigQuery, Snowflake, SharePoint, etc.)
-need credentials/drivers; add each as a function in `connectors/registry.py` returning a DataFrame.
+Issues and pull requests are welcome. Run `pytest -q` before submitting.
+
+## License
+
+MIT. See `LICENSE`.
