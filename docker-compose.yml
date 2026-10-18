@@ -1,6 +1,6 @@
 services:
   backend:
-    build: { context: ., dockerfile: backend/Dockerfile }
+    build: ./backend
     environment:
       - OLLAMA_URL=http://ollama:11434
       - OLLAMA_MODEL=qwen3:8b
