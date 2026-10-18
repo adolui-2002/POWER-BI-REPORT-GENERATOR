@@ -1,4 +1,7 @@
-https://youtu.be/1p_BsG5Cwf0
+## 🎥 Project Demo
+
+[▶️ Watch the Project Demo on YouTube](https://youtu.be/1p_BsG5Cwf0)
+
 
 # Data Analytics Automated Report Narrative Generator
 
