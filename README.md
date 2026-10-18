@@ -2,6 +2,8 @@
 
 **Turn your data into insightful, human-readable business reports with AI.**
 
+ [![Live App](https://img.shields.io/badge/🌐_Live_App-Open-2563eb?style=for-the-badge)](https://power-bi-report-generator.vercel.app)
+
 An AI analytics app that explores datasets in a Power BI-style dashboard, detects trends and anomalies, and writes a business narrative. Python computes every number; the LLM only writes the words; guardrails verify the result.
 
 🎥 **Project Demo**
