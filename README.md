@@ -1,3 +1,5 @@
+https://youtu.be/1p_BsG5Cwf0
+
 # Data Analytics Automated Report Narrative Generator
 
 FastAPI + local LLM (Ollama) + React. All components are free/open-source.
